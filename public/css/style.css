@@ -1,58 +1,5 @@
-html{
-	overflow:hidden
-}
-body {
-	margin: 10px auto;
-	max-width: 960px;
-	overflow:hidden;
-}
-
-.todo-app-content {
-	max-width: 950px;
-}
-
-.priority-0 {
-	background-color: lightcyan;
-}
-.priority-1 {
-	background-color: lightgoldenrodyellow;
-}
-.priority-2 {
-	background-color: bisque;
-}
-
-.priority {
-	padding: 5px;
-}
-
-.table-item-dates {
-	width: 200px;
-}
-
-.table-item-priority {
-	width: 60px;
-}
-
-.table-item-action {
-	width: 210px;
-}
-
-.task-done {
-	background-color: lightgray;
-}
-
-/*text area looks better if height is 180px*/
-textarea.md-textarea {
-	min-height: 180px !important;
-	resize: none !important;
-}
-
 .md-snackbar.snackbar-errors{
 	background: #ff5722;
 	height: auto;
 	max-height: none;
-}
-
-.md-table-cell {
-	height: 130px;
 }

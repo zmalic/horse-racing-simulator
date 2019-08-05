@@ -137,7 +137,8 @@ abstract class Model
         }
 
         $name = static::$name;
-        $sql = "SELECT * FROM `$name`{$where} ORDER BY $order $direction LIMIT :offset, :limit";
+        $orderQuery = $direction == RANDOM ? "RAND()" : "$order $direction";
+        $sql = "SELECT * FROM `$name`{$where} ORDER BY $orderQuery LIMIT :offset, :limit";
         return Database::instance()->run($sql, $data);
     }
 
@@ -158,5 +159,9 @@ abstract class Model
             return $data[0];
         }
         return false;
+    }
+
+    public function GetId(){
+        return $this->id;
     }
 }

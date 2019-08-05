@@ -12,128 +12,68 @@
 		<!-- Applications custom styles -->
 		<link rel="stylesheet" href="public/css/style.css" >
 
-		<title>Todo List</title>
+		<title>Horse Racing Simulator</title>
 	</head>
 
 	<body>
 		<div id="app" class="md-elevation-4">
-			<md-app md-waterfall md-mode="fixed">
+			<md-app>
 
 				<!-- Toolbar -->
 				<md-app-toolbar class="md-primary">
-					<span class="md-title">Tasks</span>
+					<span class="md-title">Horse Racing Simulator</span>
 					<div class="md-toolbar-section-end">
-						<md-button class="md-primary" v-on:click="createNewTask()" v-if="!newTask">Create task</md-button>
+						<md-button class="md-primary" v-on:click="createRace()">Create race</md-button>
 					</div>
 				</md-app-toolbar>
 
-				<!-- Form for creation or edit -->
-				<md-app-content class="todo-app-content">
-					<form novalidate class="md-app-content md-layout" @submit.prevent="validateForm"  v-if="newTask">
-						<div class="md-layout md-gutter">
-							<div class="md-layout-item md-small-size-100">
-								<md-field :class="getValidationClass('title')">
-									<label for="title">Title</label>
-									<md-input name="title" id="title" v-model="form.title" :disabled="sending"></md-input>
-									<span class="md-error" v-if="!$v.form.title.required">The title is required</span>
-									<span class="md-error" v-else-if="!$v.form.title.maxLength">Title is too long</span>
-									<span class="md-error" v-else-if="!$v.form.title.minlength">Title is too short</span>
-								</md-field>
-								<md-field :class="getPriorityClass(-1)">
-									<md-select v-model="form.priority" name="priority" id="priority" placeholder="Priority">
-										<md-option v-for="item in priorities" :key="item.id" v-model="item.id" :class="getPriorityClass(item.id)">{{item.title}}</md-option>
-									</md-select>
-									<span class="md-helper-text">Priority</span>
-								</md-field>
-								<md-datepicker name="due-date" id="due-date"  v-model="form.dueDate" md-immediately :class="getValidationClass('dueDate')">
-									<label>Due date</label>
-									<span class="md-error">Due date is required</span>
-								</md-datepicker>
-							</div>
-							<div class="md-layout-item md-small-size-100">
-								<md-field :class="getValidationClass('description')">
-									<label>Description</label>
-									<md-textarea v-model="form.description"></md-textarea>
-									<span class="md-error">Description is too long</span>
-								</md-field>
-								<md-card-actions>
-									<md-button class="md-raised" :disabled="sending" v-on:click="cancel()">Cancel</md-button>
-									<md-button type="submit" class="md-raised md-primary" :disabled="sending">Save</md-button>
-								</md-card-actions>
-							</div>
-						</div>
-					</form>
+				<!-- App content -->
+				<md-app-content class="app-content">
+					<md-button class="md-primary" v-on:click="progress()">Progress</md-button>
+					<!-- List of races -->
+					<md-content class="md-scrollbar">
+						<p v-for="(race, index) in races">
+							<md-table v-model="races[index].horses" md-card>
+								<md-table-toolbar>Race {{races[index].id}}  (Race time: {{races[index].time}})</md-table-toolbar>
 
-					<!-- undo, order and search -->
-					<div class="md-layout md-gutter" v-if="!newTask">
-						<div class="md-layout-item md-small-size-100">
-							<md-button v-if="undoCount" class="md-icon-button md-raised md-primary" v-on:click="undoDelete()">
-								<md-icon>undo</md-icon>
-							</md-button>
-						</div>
-						<div class="md-layout-item md-small-size-100">
-							<md-field>
-								<label for="order_by">Order by</label>
-								<md-select name="order_by" id="order_by" v-model="orderBy">
-									<md-option value="createdAt">Creation date</md-option>
-									<md-option value="priority">Priority</md-option>
-									<md-option value="dueDate">Due date</md-option>
-								</md-select>
-							</md-field>
-						</div>
-						<div class="md-layout-item md-small-size-100">
-							<md-field>
-								<label for="order_type">Order type</label>
-								<md-select name="order_type" id="order_type" v-model="orderType">
-									<md-option value="asc">Ascending</md-option>
-									<md-option value="desc">Descending</md-option>
-								</md-select>
-							</md-field>
-						</div>
-						<div class="md-layout-item md-small-size-100">
-							<md-field>
-								<md-icon>search</md-icon>
-								<label>Search</label>
-								<md-input v-model="search"></md-input>
-							</md-field>
-						</div>
-					</div>
+								<md-table-row slot="md-table-row" slot-scope="{ item }">
+									<md-table-cell md-label="No" >{{ indexOfHorse(races[index].horses, item) }}</md-table-cell>
+									<md-table-cell md-label="Name" >{{ item.horseName }}</md-table-cell>
+									<md-table-cell md-label="Crossed" >{{ item.metersCrossed }} m</md-table-cell>
+									<md-table-cell md-label="Finish time" ><span v-if="item.finishTime > 0">{{ item.finishTime }} seconds</span></md-table-cell>
+								</md-table-row>
+							</md-table>
+						</p>
+					</md-content>
 
-					<!-- List of created tasks -->
-					<md-table v-model="tasks" md-card md-fixed-header v-if="!newTask">
-						<md-table-row slot="md-table-row" slot-scope="{ item }" :class="{'task-done': item.done}">
-							<md-table-cell md-label="Priority" class="table-item-priority">
-								<md-avatar :class="getPriorityClass(item.priority)"></md-avatar>
-							</md-table-cell>
-							<md-table-cell md-label="Task">
-								<span class="md-subheading">{{ item.title }}</span>
-								<div>{{ item.description }}</div>
-							</md-table-cell>
-							<md-table-cell md-label="Dates" class="table-item-dates">
-								<div><span class="md-subheading">Due date:</span> {{ frontEndDateFormat(item.dueDate) }}</div>
-								<div><span class="md-subheading"> Created:</span> {{ frontEndDateFormat(item.createdAt) }}</div>
-								<div  v-if="item.updatedAt"><span class="md-subheading"> Updated:</span> {{ frontEndDateFormat(item.updatedAt) }}</div>
-								<div  v-if="item.completedAt && item.done"><span class="md-subheading"> Completed at:</span> {{ frontEndDateTimeFormat(item.completedAt) }}</div>
-							</md-table-cell>
-							<md-table-cell md-label="Actions" class="table-item-action">
-								<md-button class="md-icon-button md-raised" v-if="!item.done" v-on:click="changeStatus(item)">
-									<md-icon>done</md-icon>
-								</md-button>
-								<md-button class="md-icon-button md-raised" v-if="item.done" v-on:click="changeStatus(item)">
-									<md-icon>clear</md-icon>
-								</md-button>
-								<md-button class="md-icon-button md-raised md-primary" v-on:click="editTask(item)">
-									<md-icon>edit</md-icon>
-								</md-button>
-								<md-button class="md-icon-button md-raised md-accent" v-on:click="deleteTask(item)">
-									<md-icon>delete</md-icon>
-								</md-button>
-							</md-table-cell>
+					<!-- List of five finished races -->
+					<md-content class="md-scrollbar">
+						<p v-for="(race, index) in finishedRaces">
+							<md-table v-model="finishedRaces[index].horses" md-card>
+								<md-table-toolbar>Finished race {{finishedRaces[index].id}} - Top 3 (Race time: {{finishedRaces[index].time}})</md-table-toolbar>
+
+								<md-table-row slot="md-table-row" slot-scope="{ item }">
+									<md-table-cell md-label="No" >{{ indexOfHorse(finishedRaces[index].horses, item) }}</md-table-cell>
+									<md-table-cell md-label="Name" >{{ item.horseName }}</md-table-cell>
+									<md-table-cell md-label="Finish time" >{{ item.finishTime }} seconds</md-table-cell>
+								</md-table-row>
+							</md-table>
+						</p>
+					</md-content>
+
+					<!-- Best time ever -->
+					<md-table v-model="bestTimeEver" md-card>
+						<md-table-toolbar>Best time ever</md-table-toolbar>
+
+						<md-table-row slot="md-table-row" slot-scope="{ item }">
+							<md-table-cell md-label="Name" >{{ item.horseName }}</md-table-cell>
+							<md-table-cell md-label="Finish time" >{{ item.finishTime }} seconds</md-table-cell>
+							<md-table-cell md-label="Race" > Race {{ item.raceId }}</md-table-cell>
+							<md-table-cell md-label="Speed" > {{ item.speed }}</md-table-cell>
+							<md-table-cell md-label="Strength" > {{ item.strength }}</md-table-cell>
+							<md-table-cell md-label="Endurance" > {{ item.endurance }}</md-table-cell>
 						</md-table-row>
 					</md-table>
-
-					<!-- Snackbar for successful saving -->
-					<md-snackbar :md-active.sync="taskSaved">The task is saved</md-snackbar>
 
 					<!-- Snackbar for errors -->
 					<md-snackbar :md-active.sync="hasErrors" class="snackbar-errors">
@@ -143,27 +83,13 @@
 							</li>
 						</ul>
 					</md-snackbar>
-
-					<!-- Progress bar -->
-					<md-progress-bar md-mode="indeterminate" v-if="sending"></md-progress-bar>
 				</md-app-content>
 			</md-app>
-
-			<!-- Delete confirm dialog -->
-			<md-dialog-confirm
-					:md-active.sync="activeDialog"
-					md-title="Delete task"
-					md-content="Are you sure you want to delete the task?."
-					md-confirm-text="Yes"
-					md-cancel-text="No"
-					@md-confirm="onDeleteConfirm" />
 		</div>
 
 		<!-- Included libraries -->
 		<script src="public/js/vue.js"></script>
 		<script src="public/js/vue-material.min.js"></script>
-		<script src="public/js/vuelidate.min.js"></script>
-		<script src="public/js/validators.min.js"></script>
 		<script src="public/js/moment.min.js"></script>
 		<script src="public/js/axios.min.js"></script>
 		<script src="public/js/lodash.min.js"></script>

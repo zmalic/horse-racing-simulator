@@ -19,6 +19,7 @@ define('DB_USER', $config['database']['username']);
 define('DB_PASS', $config['database']['password']);
 define('DESC', 'DESC');
 define('ASC', 'ASC');
+define('RANDOM', 'RANDOM');
 
 // Application params
 define('ERROR_REPORTING', $config['application']['error_reporting']);
