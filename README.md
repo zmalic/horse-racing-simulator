@@ -9,3 +9,6 @@ Based on my project Simple PHP MVC framework with JSON-RPC-like remote procedure
 * Create DB table using `horse_racing_simulator.sql` file from root of the project
 * In `config.ini` set database parameters
 
+## Demo
+
+You can see the working example of this project on [my page](http://horseracing.davand.net)
