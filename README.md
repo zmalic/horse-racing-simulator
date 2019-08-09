@@ -7,7 +7,7 @@ Based on my project Simple PHP MVC framework with JSON-RPC-like remote procedure
 * Copy all the files to the web server root folder
 * Create MySQL database
 * Create DB table using `horse_racing_simulator.sql` file from root of the project
-* In `config.ini` set database parameters
+* In `app/config/config.ini` set database parameters
 
 ## Demo
 
